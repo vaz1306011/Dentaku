@@ -9,6 +9,9 @@
 from PySide6 import QtWidgets
 
 from dentaku import DentakuApp
+from dentaku.utils.logger import setup_logging
+
+setup_logging()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])

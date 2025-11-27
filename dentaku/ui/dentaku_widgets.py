@@ -1,9 +1,9 @@
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication,
     QGridLayout,
     QLabel,
     QPushButton,
-    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
@@ -12,12 +12,22 @@ from PySide6.QtWidgets import (
 class DentakuWidgets(QWidget):
     def setup_ui(self):
         self.setWindowTitle("電卓")
-        self.resize(280, 400)
+        self.setFixedSize(280, 400)
 
         Vstack = QVBoxLayout(self)
 
-        self.label = QLabel(str(0), self)
-        Vstack.addWidget(self.label)
+        self.sub_label = QLabel("", self)
+        self.sub_label.setAlignment(
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        )
+        Vstack.addWidget(self.sub_label)
+
+        self.main_label = QLabel(str(0), self)
+        self.main_label.setAlignment(
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        )
+        self.main_label.setStyleSheet("font-size: 32px;")
+        Vstack.addWidget(self.main_label)
 
         self.button_back = QPushButton("←", self)
         self.button_ce = QPushButton("CE", self)
@@ -43,15 +53,15 @@ class DentakuWidgets(QWidget):
         self.button_equal = QPushButton("=", self)
 
         layout = QGridLayout()
-        for i, button in enumerate(self.button_widgets()):
+        for i, button in enumerate(self.all_buttons()):
             row = 1 + i // 4
             col = i % 4
-            # button.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+            button.setStyleSheet("font-size: 24px;")
             layout.addWidget(button, row, col)
 
         Vstack.addLayout(layout)
 
-    def button_widgets(self):
+    def all_buttons(self):
         for widget in (
             self.button_back,
             self.button_ce,
@@ -73,6 +83,30 @@ class DentakuWidgets(QWidget):
             self.button_0,
             self.button_dot,
             self.button_equal,
+        ):
+            yield widget
+
+    def number_buttons(self):
+        for widget in (
+            self.button_0,
+            self.button_1,
+            self.button_2,
+            self.button_3,
+            self.button_4,
+            self.button_5,
+            self.button_6,
+            self.button_7,
+            self.button_8,
+            self.button_9,
+        ):
+            yield widget
+
+    def operator_buttons(self):
+        for widget in (
+            self.button_plus,
+            self.button_minus,
+            self.button_multiply,
+            self.button_divide,
         ):
             yield widget
 
