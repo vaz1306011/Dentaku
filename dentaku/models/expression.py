@@ -80,6 +80,15 @@ class Expression:
                 self.elements.append("0")
 
     def convert_minus(self) -> None:
+        if self.current_char == ")":
+            del self.elements[self.curreny_index]
+            for i in range(self.curreny_index - 1, -1, -1):
+                if self.elements[i] == "(":
+                    if self.elements[i + 1] == "-":
+                        del self.elements[i + 1]
+                    del self.elements[i]
+                    break
+            return
         if self.current_char not in CharType.DIGIT:
             print("qwe")
             return
