@@ -19,7 +19,9 @@ class TraceStyleFormatter(logging.Formatter):
             stack = self.__filter_stack()
             return f"{header}\n{stack}{message}\n"
         else:
-            location = f"File: {record.pathname}:{record.lineno}"
+            location = (
+                f'File "{record.pathname}", line {record.lineno}, in {record.funcName}'
+            )
             return f"{header}\n{self.__add_space(location, 2)}\n{self.__add_space(message, 4)}\n"
 
     def __filter_stack(self) -> str:
