@@ -10,5 +10,3 @@ def callculate(expr: str) -> str:
         return f"{eval(expr):.8f}".rstrip("0").rstrip(".")
     except ZeroDivisionError:
         return "0"
-    except Exception as e:
-        return "ERROR"

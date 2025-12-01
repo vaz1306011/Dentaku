@@ -2,22 +2,20 @@ import re
 
 
 def normalize_operator(expression: list | str) -> str:
-    expression_str = "".join(expression).replace("÷", "/").replace("×", "*")
-    return expression_str
+    text = "".join(expression)
+    text = text.replace("÷", "/")
+    text = text.replace("×", "*")
+    return text
 
 
-# def display_operator(expression: list | str) -> str:
+def display_operator(expression: list | str) -> str:
+    def replace_ops(text: str):
+        text = text.replace("/", "÷")
+        text = text.replace("*", "×")
+        return text
 
-#     expression_str = "".join(expression).replace("/", "÷").replace("*", "×")
-#     return expression_str
-
-
-def display_operator(html):
-    def replace_ops(text):
-        return text.replace("/", "÷").replace("*", "×")
-
-    html = "".join(html)
-    parts = re.split(r"(<[^>]+>)", html)
+    expression = "".join(expression)
+    parts = re.split(r"(<[^>]+>)", expression)
 
     result = []
     for part in parts:

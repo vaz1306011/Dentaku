@@ -39,7 +39,7 @@ class Logic:
 
     @set_pre(ButtonType.NUMBER)
     def press_plus_minus(self):
-        self.expression.convert_minus()
+        self.expression.toggle_sign()
 
     @set_pre(ButtonType.OPERATOR)
     def press_operator(self, operator: str):
@@ -53,7 +53,7 @@ class Logic:
             self.expression.caluculate()
             self.sub_expression = temp
             self.status = ButtonType.EQUALS
-        except ValueError:
+        except (SyntaxError, ValueError):
             pass
 
     @set_pre(ButtonType.NONE)

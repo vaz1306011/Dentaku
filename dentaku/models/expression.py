@@ -4,7 +4,7 @@ import re
 from dentaku.models import CharType
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 
 
 class Expression:
@@ -25,7 +25,7 @@ class Expression:
         return s
 
     @property
-    def curreny_index(self) -> int:
+    def current_index(self) -> int:
         return len(self.elements) - 1 - self.cursor_offset
 
     @property
@@ -36,8 +36,16 @@ class Expression:
     def current_char(self, value: str) -> None:
         self.elements[-1 - self.cursor_offset] = value
 
+    def left_char(self, offset: int) -> str:
+        if self.cursor_offset + offset >= len(self.elements):
+            return ""
+        return self.elements[-1 - self.cursor_offset - offset]
+
     def add_on_cursor(self, value: str) -> None:
         self.elements.insert(len(self.elements) - self.cursor_offset, value)
+
+    def remove_on_cursor(self) -> None:
+        del self.elements[len(self.elements) - 1 - self.cursor_offset]
 
     def move_cursor_left(self) -> None:
         if self.cursor_offset < len(self.elements) - 1:
@@ -49,20 +57,24 @@ class Expression:
 
     @property
     def is_last_number_zero(self) -> bool:
+        logger.debug(f"elements: {self.elements}")
         if len(self.elements) == 1:
             return self.elements[0] == "0"
-        return self.elements[-2] in (CharType.OPERATOR, CharType.PARENTHESIS)
+        left_char = self.left_char(1)
+        return self.current_char == "0" and (
+            left_char in CharType.OPERATOR or left_char in CharType.PARENTHESIS
+        )
 
     def add_number(self, number: str) -> None:
+        if self.current_char in CharType.OPERATOR and number == ".":
+            self.add_on_cursor("0")
         if self.current_char == ")":
             self.add_operator("*")
             self.set_gray(len(self.elements) - 1)
         elif self.is_last_number_zero:
-            self.current_char = number
-            self.elements.pop()
+            self.remove_on_cursor()
 
         self.add_on_cursor(number)
-        # logger.debug(f"{self.elements=}")
 
     def add_operator(self, operator: str) -> None:
         if self.current_char in CharType.OPERATOR:
@@ -72,68 +84,37 @@ class Expression:
 
     def backspace(self) -> None:
         if self.current_char == ")":
-            self.set_gray(self.curreny_index)
+            self.set_gray(self.current_index)
             self.move_cursor_left()
-        else:
-            self.elements.pop()
-            if not self.elements:
-                self.elements.append("0")
+            return
 
-    def convert_minus(self) -> None:
+        if self.current_char == "(":
+            self.move_cursor_right()
+            self.remove_on_cursor()
+
+        self.remove_on_cursor()
+        if not self.elements:
+            self.elements.append("0")
+
+    def toggle_sign(self) -> None:
         if self.current_char == ")":
-            del self.elements[self.curreny_index]
-            for i in range(self.curreny_index - 1, -1, -1):
-                if self.elements[i] == "(":
-                    if self.elements[i + 1] == "-":
-                        del self.elements[i + 1]
-                    del self.elements[i]
-                    break
+            self.__remove_negative_format()
             return
         if self.current_char not in CharType.DIGIT:
-            print("qwe")
             return
-        for i in range(len(self.elements) - 1, -1, -1):
-            if self.elements[i] in CharType.OPERATOR:
-                if self.elements[i] == "-":
-                    self.elements[i] = "+"
-                else:
-                    self.elements.insert(i + 1, "-")
-                    self.elements.insert(i + 1, "(")
-                    self.add_on_cursor(")")
-                break
-        else:
-            self.elements.insert(0, "-")
-            self.elements.insert(0, "(")
-            self.add_on_cursor(")")
-
-    def remove_parenthesis_and_minus(self) -> None:
-        closing_count = 0
-        for i in range(len(self.elements) - 1, -1, -1):
-            if self.elements[i] == ")":
-                if closing_count == 0:
-                    del self.elements[i]
-                closing_count += 1
-            elif self.elements[i] == "(":
-                closing_count -= 1
-                if closing_count == 0:
-                    del self.elements[i]
-
-            if closing_count == 0:
-                if self.elements[i] == "-":
-                    del self.elements[i]
-                break
+        self.__apply_negative_format()
 
     def caluculate(self) -> None:
         from dentaku.core.callculate import callculate
         from dentaku.utils.convert import normalize_operator
 
         expression_str = normalize_operator(self.normalized_elements)
-        self.elements = list((callculate(expression_str)))
+        self.elements = [callculate(expression_str)]
         self.cursor_offset = 0
 
     def clear_entry(self) -> None:
         closing_count = 0
-        for i in range(len(self.elements) - 1, -1, -1):
+        for i in self.__reverse_range_from_cursor():
             if self.elements[i] == ")":
                 closing_count += 1
             elif self.elements[i] == "(":
@@ -141,13 +122,14 @@ class Expression:
 
             if self.elements[i] in CharType.OPERATOR and closing_count == 0:
                 break
-            self.elements.pop()
+            self.remove_on_cursor()
         if not self.elements:
             self.elements.append("0")
 
     def clear(self) -> None:
         self.elements.clear()
         self.elements.append("0")
+        self.cursor_offset = 0
 
     def copy(self) -> "Expression":
         new_expr = Expression()
@@ -163,3 +145,30 @@ class Expression:
     def remove_gray(self, index: int) -> None:
         self.elements[index] = re.sub(r"<span.*?>", "", self.elements[index])
         self.elements[index] = re.sub(r"</span>", "", self.elements[index])
+
+    def __reverse_range_from_cursor(self) -> range:
+        return range(self.current_index, -1, -1)
+
+    def __apply_negative_format(self) -> None:
+        for i in self.__reverse_range_from_cursor():
+            if self.elements[i] in CharType.OPERATOR:
+                if self.elements[i] == "-":
+                    self.elements[i] = "+"
+                else:
+                    self.elements.insert(i + 1, "-")
+                    self.elements.insert(i + 1, "(")
+                    self.add_on_cursor(")")
+                break
+        else:
+            self.elements.insert(0, "-")
+            self.elements.insert(0, "(")
+            self.add_on_cursor(")")
+
+    def __remove_negative_format(self) -> None:
+        del self.elements[self.current_index]
+        for i in self.__reverse_range_from_cursor():
+            if self.elements[i] == "(":
+                if self.elements[i + 1] == "-":
+                    del self.elements[i + 1]
+                del self.elements[i]
+                break

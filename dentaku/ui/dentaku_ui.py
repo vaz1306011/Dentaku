@@ -50,6 +50,10 @@ class DentakuUi(DentakuWidgets):
         self.logic.press_plus_minus()
 
     @__refresh_ui()
+    def on_dot_clicked(self):
+        self.logic.press_number(".")
+
+    @__refresh_ui()
     def on_operator_clicked(self, operator):
         self.logic.press_operator(operator)
 
@@ -78,6 +82,7 @@ class DentakuUi(DentakuWidgets):
         for btn in self.operator_buttons():
             operator = normalize_operator(btn.text())
             btn.clicked.connect(partial(self.on_operator_clicked, operator))
+        self.button_dot.clicked.connect(self.on_dot_clicked)
 
         self.button_equal.clicked.connect(self.on_equal_clicked)
 
