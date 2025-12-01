@@ -39,7 +39,7 @@ class Logic:
 
     @set_pre(ButtonType.NUMBER)
     def press_plus_minus(self):
-        pass
+        self.expression.convert_minus()
 
     @set_pre(ButtonType.OPERATOR)
     def press_operator(self, operator: str):

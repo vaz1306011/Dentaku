@@ -5,7 +5,7 @@ from PySide6 import QtWidgets
 from dentaku.core.logic import Logic
 from dentaku.utils import normalize_operator
 
-from .dentaku_widgets import DentakuWidgets
+from .widgets.dentaku_widgets import DentakuWidgets
 
 
 class DentakuUi(DentakuWidgets):
@@ -26,8 +26,8 @@ class DentakuUi(DentakuWidgets):
                 result = func(self, *args, **kwargs)
                 self.main_label.setText(str(self.logic))
                 self.sub_label.setText(
-                    self.logic.sub_expression.__str__()
-                    if self.logic.sub_expression.__str__() != "0"
+                    str(self.logic.sub_expression)
+                    if str(self.logic.sub_expression) != "0"
                     else ""
                 )
                 return result

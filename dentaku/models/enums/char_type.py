@@ -6,8 +6,6 @@ class CharType(Enum):
     OPERATOR = "+-*/"
     DECIMAL_POINT = "."
     PARENTHESIS = "()"
-    LEFT_PARENTHESIS = "("
-    RIGHT_PARENTHESIS = ")"
 
     def __contains__(self, item: str) -> bool:
         return item in self.value
