@@ -1,6 +1,8 @@
 from functools import partial
 
 from PySide6 import QtWidgets
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QKeyEvent
 
 from dentaku.core.logic import Logic
 from dentaku.utils import normalize_operator
@@ -43,41 +45,86 @@ class DentakuUi(DentakuWidgets):
 
     @__refresh_ui()
     def on_number_clicked(self, num):
-        self.logic.press_number(num)
+        self.logic.add_number(num)
 
     @__refresh_ui()
-    def on_pluse_minus_clicked(self):
-        self.logic.press_plus_minus()
+    def on_toggle_sign_clicked(self):
+        self.logic.toggle_sign()
 
     @__refresh_ui()
     def on_dot_clicked(self):
-        self.logic.press_number(".")
+        self.logic.add_number(".")
 
     @__refresh_ui()
     def on_operator_clicked(self, operator):
-        self.logic.press_operator(operator)
+        self.logic.add_operator(operator)
+
+    @__refresh_ui()
+    def on_parenthesis_clicked(self, parenthesis):
+        self.logic.add_parenthesis(parenthesis)
 
     @__refresh_ui()
     def on_equal_clicked(self):
-        self.logic.press_equals()
+        self.logic.evaluate()
 
     @__refresh_ui()
     def on_back_clicked(self):
-        self.logic.press_back()
+        self.logic.backspace()
 
     @__refresh_ui()
     def on_clear_entry_clicked(self):
-        self.logic.press_clear_entry()
+        self.logic.clear_entry()
 
     @__refresh_ui()
     def on_clear_clicked(self):
-        self.logic.press_clear()
+        self.logic.clear()
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        key = event.key()
+        text = event.text()
+        match key:
+            case (
+                Qt.Key.Key_0
+                | Qt.Key.Key_1
+                | Qt.Key.Key_2
+                | Qt.Key.Key_3
+                | Qt.Key.Key_4
+                | Qt.Key.Key_5
+                | Qt.Key.Key_6
+                | Qt.Key.Key_7
+                | Qt.Key.Key_8
+                | Qt.Key.Key_9
+            ):
+                self.on_number_clicked(text)
+
+            case (
+                Qt.Key.Key_Plus
+                | Qt.Key.Key_Minus
+                | Qt.Key.Key_Asterisk
+                | Qt.Key.Key_Slash
+            ):
+                self.on_operator_clicked(text)
+
+            case Qt.Key.Key_ParenLeft | Qt.Key.Key_ParenRight:
+                self.on_parenthesis_clicked(text)
+
+            case Qt.Key.Key_Equal | Qt.Key.Key_Return | Qt.Key.Key_Enter:
+                self.on_equal_clicked()
+
+            case Qt.Key.Key_Backspace:
+                self.on_back_clicked()
+
+            case Qt.Key.Key_Period | Qt.Key.Key_Comma:
+                self.on_dot_clicked()
+
+            case _:
+                super().keyPressEvent(event)
 
     def __wire(self):
         for btn in self.number_buttons():
             btn.clicked.connect(partial(self.on_number_clicked, btn.text()))
 
-        self.button_plus_minus.clicked.connect(self.on_pluse_minus_clicked)
+        self.button_plus_minus.clicked.connect(self.on_toggle_sign_clicked)
 
         for btn in self.operator_buttons():
             operator = normalize_operator(btn.text())

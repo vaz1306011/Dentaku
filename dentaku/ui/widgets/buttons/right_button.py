@@ -1,22 +1,15 @@
-from PySide6.QtWidgets import QPushButton
+from .button import Button
 
 
-class RightButton(QPushButton):
-    def __init__(self, text="", parent=None):
+class RightButton(Button):
+    def __init__(
+        self,
+        text,
+        color="#fffaf1",
+        bg_color="#ff8c00",
+        color_p="#fffbf2",
+        bg_color_p="#ffa100",
+        parent=None,
+    ):
         super().__init__(text, parent)
-
-        self.setFixedSize(48, 48)
-        self.setStyleSheet(
-            """
-            QPushButton {
-                border-radius: 24px;
-                color: #fffaf1;
-                background-color: #ff8c00;
-                font-size: 30px;
-            }
-            QPushButton:pressed {
-                color: #fffbf2;
-                background-color: #ffa100;
-            }
-            """
-        )
+        self.set_colors(color, bg_color, color_p, bg_color_p)

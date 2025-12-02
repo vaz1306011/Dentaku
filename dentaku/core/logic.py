@@ -1,4 +1,5 @@
 import logging
+from sys import setprofile
 
 from dentaku.models import ButtonType, Expression
 
@@ -31,23 +32,27 @@ class Logic:
         return decorator
 
     @set_pre(ButtonType.NUMBER)
-    def press_number(self, num: str):
+    def add_number(self, num: str):
         if self.status == ButtonType.EQUALS:
             self.expression.clear()
             self.sub_expression.clear()
         self.expression.add_number(num)
 
     @set_pre(ButtonType.NUMBER)
-    def press_plus_minus(self):
+    def toggle_sign(self):
         self.expression.toggle_sign()
 
     @set_pre(ButtonType.OPERATOR)
-    def press_operator(self, operator: str):
+    def add_operator(self, operator: str):
         if self.status == ButtonType.EQUALS:
             self.sub_expression.clear()
         self.expression.add_operator(operator)
 
-    def press_equals(self):
+    @set_pre(ButtonType.PARENTHESIS)
+    def add_parenthesis(self, parenthesis: str):
+        self.expression.add_parenthesis(parenthesis)
+
+    def evaluate(self):
         temp = self.expression.copy()
         try:
             self.expression.caluculate()
@@ -57,16 +62,16 @@ class Logic:
             pass
 
     @set_pre(ButtonType.NONE)
-    def press_back(self):
+    def backspace(self):
         if self.status == ButtonType.EQUALS:
             self.sub_expression.clear()
         self.expression.backspace()
 
     @set_pre(ButtonType.CLEAR_ENTRY)
-    def press_clear_entry(self):
+    def clear_entry(self):
         self.expression.clear_entry()
 
     @set_pre(ButtonType.CLEAR)
-    def press_clear(self):
+    def clear(self):
         self.expression.clear()
         self.sub_expression.clear()
