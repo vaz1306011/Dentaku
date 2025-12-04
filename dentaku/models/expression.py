@@ -126,12 +126,12 @@ class Expression:
         self.__apply_negative_format()
 
     def caluculate(self) -> None:
-        from dentaku.core.callculate import callculate
+        from dentaku.core.callculate import calculate
         from dentaku.utils.convert import normalize_operator
 
-        expression_str = normalize_operator(self.normalized_elements)
-        element = Char(callculate(expression_str))
-        self.elements = [element]
+        normalize_expression = normalize_operator(self.normalized_elements)
+        ans = calculate(normalize_expression)
+        self.elements = [Char(c) for c in ans]
         self.cursor_offset = 0
 
     def clear_entry(self) -> None:
