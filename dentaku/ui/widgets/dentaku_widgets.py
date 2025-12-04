@@ -22,10 +22,6 @@ class DentakuWidgets(QWidget):
         Vstack.setContentsMargins(0, 0, 0, 0)
         Vstack.setSpacing(0)
 
-        # self.sub_label = QLabel("", self)
-        # self.sub_label.setAlignment(
-        #     Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
-        # )
         self.sub_label = ScrollLabel("", font_size=22, font_color="#a2a1a1")
         self.sub_label.setFixedHeight(50)
         self.sub_label.setLabelAlignment(

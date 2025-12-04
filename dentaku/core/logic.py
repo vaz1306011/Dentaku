@@ -1,10 +1,9 @@
 import logging
-from sys import setprofile
 
-from dentaku.models import ButtonType, Expression
+from dentaku.models import Expression
+from dentaku.models.enums import ButtonType
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 class Logic:
@@ -37,6 +36,13 @@ class Logic:
             self.expression.clear()
             self.sub_expression.clear()
         self.expression.add_number(num)
+
+    @set_pre(ButtonType.DOT)
+    def add_dot(self):
+        if self.status == ButtonType.EQUALS:
+            self.expression.clear()
+            self.sub_expression.clear()
+        self.expression.add_dot()
 
     @set_pre(ButtonType.NUMBER)
     def toggle_sign(self):
