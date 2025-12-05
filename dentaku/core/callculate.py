@@ -7,6 +7,6 @@ def calculate(expr: str) -> str:
     if re.fullmatch(r"\d+", expr):
         raise ValueError("Expression must contain at least one operator.")
     try:
-        return f"{eval(expr):.8f}".rstrip("0").rstrip(".")
+        return f"{eval(expr):.8g}"
     except ZeroDivisionError:
         return "0"
