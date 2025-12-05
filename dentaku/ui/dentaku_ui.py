@@ -53,7 +53,7 @@ class DentakuUi(DentakuWidgets):
 
     @__refresh_ui()
     def on_dot_clicked(self):
-        self.logic.add_number(".")
+        self.logic.add_dot()
 
     @__refresh_ui()
     def on_operator_clicked(self, operator):
